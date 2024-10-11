@@ -18,7 +18,7 @@ import * as borsh from 'borsh';
 
 
 /**
- * Connecion to the network
+ * Connection to the network
  */
 let connection: Connection;
 
@@ -61,7 +61,7 @@ const PROGRAM_KEYPAIR_PATH = path.join(PROGRAM_PATH, 'helloworld-keypair.json');
  */
 class GreetingAccount {
   counter = 0;
-  constructor(fields: {counter: number} | undefined = undefined) {
+  constructor(fields: { counter: number } | undefined = undefined) {
     if (fields) {
       this.counter = fields.counter;
     }
@@ -72,7 +72,7 @@ class GreetingAccount {
  * Borsh schema definition for greeting accounts
  */
 const GreetingSchema = new Map([
-  [GreetingAccount, {kind: 'struct', fields: [['counter', 'u32']]}],
+  [GreetingAccount, { kind: 'struct', fields: [['counter', 'u32']] }],
 ]);
 
 /**
@@ -91,27 +91,35 @@ export async function establishConnection(): Promise<void> {
   /* Get the connection object and retrieve the 
    version from the connection object. */
 
-  //Insert the Step 1 code from the tutorial here
+  connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+  const version = await connection.getVersion();
+  console.log('Connection to cluster established:', version);
 }
 
 /**
  * Generate an account to pay for everything
  */
 export async function establishPayer(): Promise<void> {
-  
+
   //Step 2: Generate a keypair - this would be an account that pays for the calls to the program
-  
-  //Insert the Step 2 code from the tutorial here
-  
+
+  payer = Keypair.generate();
+  console.log(`Public key of Payer is ${payer.publicKey.toString()}`);
+
   //Step 3: Requesting an airdrop
 
-   //Insert the Step 3 code from the tutorial here
-   
+  const sign = await connection.requestAirdrop(
+    payer.publicKey,
+    2 * LAMPORTS_PER_SOL,
+  )
+
+  await connection.confirmTransaction(sign);
+
   console.log(
     'Using account',
     payer.publicKey.toBase58(),
     'containing',
-    2* LAMPORTS_PER_SOL,
+    2 * LAMPORTS_PER_SOL,
     'SOL to pay for fees',
   );
 }
@@ -184,10 +192,10 @@ export async function checkProgram(): Promise<void> {
 /**
  * Create a Keypair from a secret key stored in file as bytes' array
  */
- export async function createKeypairFromFile(
+export async function createKeypairFromFile(
   filePath: string,
 ): Promise<Keypair> {
-  const secretKeyString = await fs.readFile(filePath, {encoding: 'utf8'});
+  const secretKeyString = await fs.readFile(filePath, { encoding: 'utf8' });
   const secretKey = Uint8Array.from(JSON.parse(secretKeyString));
   return Keypair.fromSecretKey(secretKey);
 }
@@ -199,13 +207,13 @@ export async function sayHello(): Promise<void> {
 
   //Create a Hello transaction to the deployed contract
   console.log('Saying hello to', greetedPubkey.toBase58());
-  
+
   // STEP 4: Create an instruction to be sent to the program
-  
+
   //Insert the Step 4 code from the tutorial here
 
   //STEP 5: Create a transaction to be sent to the blockchain containing the instruction
-  
+
   //Insert the Step 5 code from the tutorial here
 
 }
